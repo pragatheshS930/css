@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Storage Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: aqua;
+        }
+        .output {
+            margin-top: 20px;
+            /* background-color: brown; */
+            /* width: 200px;
+            height: 300px; */
+        }
+        button:hover{
+            background-color: rgb(7, 7, 8);
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Storage Example</h1>
+
+    <!-- localStorage Section -->
+    <h2>LocalStorage</h2>
+    <input type="text" id="localStorageInput" placeholder="Enter username">
+    <button onclick="saveToLocalStorage()">Save to localStorage</button>
+    <button onclick="retrieveFromLocalStorage()">Retrieve from localStorage</button>
+    <button onclick="clearLocalStorage()">Clear localStorage</button>
+
+    <div id="localStorageOutput" class="output"></div>
+
+    <!-- sessionStorage Section -->
+    <h2>SessionStorage</h2>
+    <input type="text" id="sessionStorageInput" placeholder="Enter session data">
+    <button onclick="saveToSessionStorage()">Save to sessionStorage</button>
+    <button onclick="retrieveFromSessionStorage()">Retrieve from sessionStorage</button>
+    <button onclick="clearSessionStorage()">Clear sessionStorage</button>
+
+    <div id="sessionStorageOutput" class="output"></div>
+
+    <script>
+        // localStorage Functions
+        function saveToLocalStorage() {
+            const username = document.getElementById('localStorageInput').value;
+            localStorage.setItem('username', username);
+            document.getElementById('localStorageOutput').innerText = `Saved to localStorage: ${username}`;
+        }
+
+        function retrieveFromLocalStorage() {
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.getElementById('localStorageOutput').innerText = `Retrieved from localStorage: ${username}`;
+            } else {
+                document.getElementById('localStorageOutput').innerText = 'No username found in localStorage.';
+            }
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('username');
+            document.getElementById('localStorageOutput').innerText = 'localStorage cleared.';
+        }
+
+        // sessionStorage Functions
+        function saveToSessionStorage() {
+            const sessionData = document.getElementById('sessionStorageInput').value;
+            sessionStorage.setItem('sessionData', sessionData);
+            document.getElementById('sessionStorageOutput').innerText = `Saved to sessionStorage: ${sessionData}`;
+        }
+
+        function retrieveFromSessionStorage() {
+            const sessionData = sessionStorage.getItem('sessionData');
+            if (sessionData) {
+                document.getElementById('sessionStorageOutput').innerText = `Retrieved from sessionStorage: ${sessionData}`;
+            } else {
+                document.getElementById('sessionStorageOutput').innerText = 'No session data found in sessionStorage.';
+            }
+        }
+
+        function clearSessionStorage() {
+            sessionStorage.removeItem('sessionData');
+            document.getElementById('sessionStorageOutput').innerText = 'sessionStorage cleared.';
+        }
+    </script>
+</body>
+</html>
