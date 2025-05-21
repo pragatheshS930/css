@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Budget Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .container {
+        display: flex;
+        gap: 20px;
+      }
+      .form-section,
+      .chart-section {
+        flex: 1;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      input,
+      select,
+      button {
+        padding: 8px;
+        margin: 5px 0;
+        width: 100%;
+      }
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      .income {
+        color: green;
+      }
+      .expense {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Budget Tracker</h1>
+    <div class="container">
+      <div class="form-section">
+        <form id="transaction-form">
+          <h2>Add Transaction</h2>
+          <input
+            type="text"
+            id="description"
+            placeholder="Description"
+            required
+          />
+          <input type="number" id="amount" placeholder="Amount" required />
+          <select id="type" required>
+            <option value="">Select type</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <button type="submit">Add</button>
+        </form>
+
+        <h2>Transactions</h2>
+        <table id="transactions">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="chart-section">
+        <h2>Budget Summary</h2>
+        <canvas id="budget-chart"></canvas>
+        <div id="summary"></div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("transaction-form");
+        const transactionsTable = document
+          .getElementById("transactions")
+          .querySelector("tbody");
+        const ctx = document.getElementById("budget-chart").getContext("2d");
+        const summaryDiv = document.getElementById("summary");
+
+        let transactions =
+          JSON.parse(localStorage.getItem("transactions")) || [];
+        let budgetChart = null;
+
+        // Initialize
+        renderTransactions();
+        updateChart();
+        updateSummary();
+
+        // Form submission
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const description = document
+            .getElementById("description")
+            .value.trim();
+          const amount = parseFloat(document.getElementById("amount").value);
+          const type = document.getElementById("type").value;
+
+          if (description && !isNaN(amount) && type) {
+            const transaction = {
+              id: Date.now(),
+              description,
+              amount,
+              type,
+            };
+
+            transactions.push(transaction);
+            saveTransactions();
+            renderTransactions();
+            updateChart();
+            updateSummary();
+
+            // Reset form
+            form.reset();
+          }
+        });
+
+        // Render transactions table
+        function renderTransactions() {
+          transactionsTable.innerHTML = "";
+
+          transactions.forEach((transaction) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                        <td>${transaction.description}</td>
+                        <td class="${
+                          transaction.type
+                        }">${transaction.amount.toFixed(2)}</td>
+                        <td>${
+                          transaction.type.charAt(0).toUpperCase() +
+                          transaction.type.slice(1)
+                        }</td>
+                    `;
+            transactionsTable.appendChild(row);
+          });
+        }
+
+        // Update chart
+        function updateChart() {
+          const income = transactions
+            .filter((t) => t.type === "income")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const expenses = transactions
+            .filter((t) => t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          if (budgetChart) {
+            budgetChart.data.datasets[0].data = [income, expenses];
+            budgetChart.update();
+          } else {
+            budgetChart = new Chart(ctx, {
+              type: "pie",
+              data: {
+                labels: ["Income", "Expenses"],
+                datasets: [
+                  {
+                    data: [income, expenses],
+                    backgroundColor: ["#4CAF50", "#F44336"],
+                  },
+                ],
+              },
+            });
+          }
+        }
+
+        // Update summary
+        function updateSummary() {
+          const income = transactions
+            .filter((t) => t.type === "income")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const expenses = transactions
+            .filter((t) => t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const balance = income - expenses;
+
+          summaryDiv.innerHTML = `
+                    <p>Total Income: $${income.toFixed(2)}</p>
+                    <p>Total Expenses: $${expenses.toFixed(2)}</p>
+                    <p>Balance: $${balance.toFixed(2)}</p>
+                `;
+        }
+
+        // Save to localStorage
+        function saveTransactions() {
+          localStorage.setItem("transactions", JSON.stringify(transactions));
+        }
+      });
+    </script>
+  </body>
+</html>

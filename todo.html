@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo List</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      #todo-form {
+        display: flex;
+        margin-bottom: 20px;
+      }
+      #todo-input {
+        flex-grow: 1;
+        padding: 8px;
+      }
+      button {
+        padding: 8px 15px;
+        cursor: pointer;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+      .delete-btn {
+        color: red;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Todo List</h1>
+    <form id="todo-form">
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="Add new task..."
+        required
+      />
+      <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("todo-form");
+        const input = document.getElementById("todo-input");
+        const list = document.getElementById("todo-list");
+        let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+        function renderTodos() {
+          list.innerHTML = "";
+          todos.forEach((todo, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                        <span>${todo.text}</span>
+                        <span class="delete-btn" data-index="${index}">✕</span>
+                    `;
+            list.appendChild(li);
+          });
+        }
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (input.value.trim()) {
+            todos.push({ text: input.value.trim(), completed: false });
+            localStorage.setItem("todos", JSON.stringify(todos));
+            input.value = "";
+            renderTodos();
+          }
+        });
+
+        list.addEventListener("click", (e) => {
+          if (e.target.classList.contains("delete-btn")) {
+            const index = e.target.getAttribute("data-index");
+            todos.splice(index, 1);
+            localStorage.setItem("todos", JSON.stringify(todos));
+            renderTodos();
+          }
+        });
+
+        renderTodos();
+      });
+    </script>
+  </body>
+</html>
